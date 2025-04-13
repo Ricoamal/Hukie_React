@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Map container styles */
+.mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the map container takes full height */
+.flex-1.relative {
+  min-height: 80vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix for map canvas */
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+/* Hide Mapbox logo and attribution */
+.mapboxgl-ctrl-logo {
+  display: none !important;
+}
+
+.mapboxgl-ctrl-attrib {
+  display: none !important;
+}
+
+.mapboxgl-ctrl-bottom-right {
+  display: none !important;
+}
+
+.mapboxgl-ctrl-bottom-left {
+  display: none !important;
+}
+
+/* Fancy popup styles */
+.fancy-popup .mapboxgl-popup-content {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.fancy-popup .mapboxgl-popup-tip {
+  display: none;
+}
+
+/* Animation for fading in elements */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Mobile chat styles */
+@media (max-width: 768px) {
+  .h-screen {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+
+  .chat-page-container {
+    height: calc(100vh - 120px) !important;
+    overflow: hidden;
+  }
+
+  .messages-container {
+    max-height: calc(100vh - 220px) !important;
+  }
+
+  /* Ensure chat container is visible */
+  .chat-container {
+    display: block !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Fix for contact images */
+  .chat-page-container img {
+    display: inline-block;
+  }
+}
