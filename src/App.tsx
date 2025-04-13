@@ -11,7 +11,7 @@ import MyProfile from './components/MyProfile';
 import LoginPage from './components/LoginPage';
 
 
-// Define user type
+// Define user type for the application
 interface UserData {
   id: number;
   name: string;
