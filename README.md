@@ -55,7 +55,29 @@ Hukie is a location-based dating application focused on safety and meaningful co
 
 ### Building for Android
 
-Please refer to the [APK Build Guidelines](APK_BUILD_GUIDELINES.md) for detailed instructions on building the Android APK.
+1. **Build the web app**:
+   ```bash
+   npm run build
+   ```
+
+2. **Copy the web assets to the Android project**:
+   ```bash
+   npx cap copy android
+   ```
+
+3. **Build the APK**:
+   ```bash
+   cd android
+   .\build-apk-new.bat
+   ```
+
+4. **Find the APK**:
+   The APK file will be located at:
+   ```
+   android/app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+For more details, please refer to the [APK Build Guidelines](APK_BUILD_GUIDELINES.md).
 
 ### Building for iOS
 
