@@ -171,7 +171,7 @@ export default function ChatPage() {
   const [showOptionsFor, setShowOptionsFor] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Sample chat contacts
+  // Sample chat contacts for the messaging feature
   const contacts: ChatContact[] = [
     {
       id: 1,
