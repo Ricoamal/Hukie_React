@@ -1,5 +1,7 @@
 # Hukie - Safe Dating App
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Ricoamal/Hukie_React)
+
 A React-based mobile application built with Capacitor for Android and iOS deployment.
 
 ## Project Overview
