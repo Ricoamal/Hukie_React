@@ -26,7 +26,7 @@ export default function LoginPage({ onComplete }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 p-4">
       <div className="w-full max-w-md">
         {showSignup ? (
           <Signup onSuccess={handleSignupSuccess} onLoginClick={switchToLogin} />

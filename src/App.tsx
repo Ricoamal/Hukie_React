@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, User, Bell, LogOut, UserCircle, Cog } from 'lucide-react';
+import { Heart, MessageCircle, User, Bell, LogOut, UserCircle, Cog, ShoppingBag } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import Map, { Marker, Popup, NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -9,6 +9,14 @@ import UserProfile from './components/UserProfile';
 import ChatPage from './components/ChatPage.tsx';
 import MyProfile from './components/MyProfile';
 import LoginPage from './components/LoginPage';
+import Store from './components/Store';
+import { CartProvider } from './contexts/CartContext';
+import { WalletProvider } from './contexts/WalletContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import NotificationCenter from './components/NotificationCenter';
+import ToastContainer from './components/ToastContainer';
 
 
 // Define user type for the application
@@ -333,6 +341,16 @@ function App() {
             <ChatPage />
           </div>
         );
+      case 'shop':
+        return (
+          <div className="flex-1 overflow-hidden h-full">
+            <CartProvider>
+              <WalletProvider>
+                <Store />
+              </WalletProvider>
+            </CartProvider>
+          </div>
+        );
       case 'profile':
         return (
           <div className="flex-1 overflow-auto p-4">
@@ -349,24 +367,28 @@ function App() {
   };
 
   return (
-    <div className={`h-screen bg-gray-50 flex flex-col overflow-hidden transition-opacity duration-500 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Top Navigation */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-lg mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <img src="/logo.png" alt="Hukie Logo" className="h-8 w-8" />
-              <span className="ml-2 text-2xl font-bold text-teal-900">Hukie</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="p-2">
-                <Bell className="h-6 w-6 text-gray-600" />
-              </button>
-              <SettingsDropdown />
+    <LanguageProvider>
+      <NotificationProvider>
+        <div className={`h-screen bg-gray-50 flex flex-col overflow-hidden transition-opacity duration-500 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
+          {/* Top Navigation */}
+          <div className="bg-white shadow-sm">
+            <div className="max-w-lg mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <img src="/logo.png" alt="Hukie Logo" className="h-8 w-8" />
+                  <span className="ml-2 text-2xl font-bold text-teal-900">Hukie</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LanguageSwitcher />
+                  <NotificationCenter />
+                  <SettingsDropdown />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+
+          {/* Toast Container */}
+          <ToastContainer />
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
@@ -396,6 +418,15 @@ function App() {
               <span className="text-xs mt-1">Messages</span>
             </button>
             <button
+              onClick={() => setActiveTab('shop')}
+              className={`p-4 flex flex-col items-center ${
+                activeTab === 'shop' ? 'text-teal-500' : 'text-gray-500'
+              }`}
+            >
+              <ShoppingBag className="h-6 w-6" />
+              <span className="text-xs mt-1">Shop</span>
+            </button>
+            <button
               onClick={() => setActiveTab('profile')}
               className={`p-4 flex flex-col items-center ${
                 activeTab === 'profile' ? 'text-teal-500' : 'text-gray-500'
@@ -408,6 +439,8 @@ function App() {
         </div>
       </div>
     </div>
+    </NotificationProvider>
+    </LanguageProvider>
   );
 }
 

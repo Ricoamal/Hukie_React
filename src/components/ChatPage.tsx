@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, Phone, Video, MoreVertical, Send, Smile, Paperclip, Mic, Archive, Trash2, X, ChevronLeft, Check, CheckCheck } from 'lucide-react';
+import { Search, Phone, Video, MoreVertical, Send, Smile, Paperclip, Mic, Archive, Trash2, X, ChevronLeft, Check, CheckCheck, Image, Camera, ShoppingBag } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
+
+// Note: You'll need to install emoji-picker-react with: npm install emoji-picker-react
 
 interface Message {
   id: string;
@@ -7,7 +10,13 @@ interface Message {
   text: string;
   timestamp: Date;
   status: 'sent' | 'delivered' | 'read';
-  attachments?: string[];
+  attachments?: {
+    type: 'image' | 'video' | 'audio' | 'file' | 'product';
+    url: string;
+    name?: string;
+    preview?: string;
+    productId?: string;
+  }[];
 }
 
 interface ChatContact {
@@ -36,8 +45,9 @@ export default function ChatPage() {
         flex: 1;
         overflow-y: auto;
         max-height: calc(100vh - 180px);
-        background-color: #f0f9ff;
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230d9488' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        background-color: #f8fafc;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230d9488' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        padding-bottom: 16px;
       }
       .input-container {
         position: sticky;
@@ -45,15 +55,15 @@ export default function ChatPage() {
         background: white;
         z-index: 10;
         padding: 12px 16px;
-        border-top: 1px solid #e0e0e0;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        border-top: 1px solid #e5e7eb;
+        box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
       }
       .avatar-strip {
         display: flex;
         overflow-x: auto;
         padding: 12px 8px;
-        background: #0d9488;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: #f1f5f9;
+        border-bottom: 1px solid #e5e7eb;
         scrollbar-width: none;
       }
       .avatar-strip::-webkit-scrollbar {
@@ -67,24 +77,25 @@ export default function ChatPage() {
         min-width: 60px;
       }
       .avatar-item span {
-        color: rgba(255, 255, 255, 0.9);
+        color: #475569;
         margin-top: 4px;
         font-weight: 500;
+        font-size: 0.75rem;
       }
       .status-ring {
         padding: 2px;
         border-radius: 50%;
         background: linear-gradient(to right, #14b8a6, #0d9488);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        border: 2px solid #f1f5f9;
       }
       .status-ring.seen {
-        background: rgba(255, 255, 255, 0.3);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: #cbd5e1;
+        border: 2px solid #f1f5f9;
       }
       .chat-header {
-        background-color: #0d9488;
-        color: white;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: white;
+        color: #0f172a;
+        border-bottom: 1px solid #e5e7eb;
       }
       .chat-header-with-strip {
         border-bottom: none;
@@ -161,15 +172,19 @@ export default function ChatPage() {
       document.head.removeChild(style);
     };
   }, []);
-  const [activeChat, setActiveChat] = useState<number | null>(1); // Set default chat to first contact
+  const [activeChat, setActiveChat] = useState<number | null>(null); // Start with no active chat
   const [message, setMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-  const [showSidebar, setShowSidebar] = useState(!isMobileView);
+  const [showSidebar, setShowSidebar] = useState(true); // Always show sidebar first
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showOptionsFor, setShowOptionsFor] = useState<number | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const attachmentOptionsRef = useRef<HTMLDivElement>(null);
 
   // Sample chat contacts for the messaging feature
   const contacts: ChatContact[] = [
@@ -266,7 +281,15 @@ export default function ChatPage() {
         senderId: 1,
         text: 'Perfect! There\'s a nice café downtown called "Brew Haven". Have you been there?',
         timestamp: new Date(Date.now() - 1000 * 60 * 10),
-        status: 'read'
+        status: 'read',
+        attachments: [
+          {
+            type: 'image',
+            url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24',
+            name: 'cafe.jpg',
+            preview: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200'
+          }
+        ]
       },
       {
         id: '6',
@@ -322,9 +345,18 @@ export default function ChatPage() {
       {
         id: '5',
         senderId: 3,
-        text: 'That sounds perfect! Looking forward to our coffee date!',
+        text: 'That sounds perfect! Looking forward to our coffee date! By the way, I found this nice gift in the shop.',
         timestamp: new Date(Date.now() - 1000 * 60 * 60),
-        status: 'delivered'
+        status: 'delivered',
+        attachments: [
+          {
+            type: 'product',
+            url: '/product/123',
+            name: 'Romantic Gift Box',
+            preview: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200',
+            productId: '123'
+          }
+        ]
       }
     ],
     4: [
@@ -422,6 +454,23 @@ export default function ChatPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, [activeChat]);
 
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+      if (attachmentOptionsRef.current && !attachmentOptionsRef.current.contains(event.target as Node)) {
+        setShowAttachmentOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Set initial state for mobile view
   useEffect(() => {
     if (isMobileView && activeChat) {
@@ -485,8 +534,21 @@ export default function ChatPage() {
     }
   };
 
+  // Handle emoji selection
+  const handleEmojiClick = (emojiData: any) => {
+    setMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  // Handle attachment selection
+  const handleAttachmentSelect = (type: 'image' | 'video' | 'audio' | 'file') => {
+    // In a real app, this would open a file picker
+    alert(`${type} attachment selected. This would open a file picker in a real app.`);
+    setShowAttachmentOptions(false);
+  };
+
   const handleSendMessage = () => {
-    if (!message.trim() || !activeChat) return;
+    if ((!message.trim() && !activeChat)) return;
 
     // Add new message to the chat
     const newMessage: Message = {
@@ -497,12 +559,20 @@ export default function ChatPage() {
       status: 'sent'
     };
 
-    const updatedMessages = { ...chatMessages };
-    updatedMessages[activeChat] = [...(updatedMessages[activeChat] || []), newMessage];
-    setChatMessages(updatedMessages);
+    if (activeChat) {
+      const updatedMessages = { ...chatMessages };
+      updatedMessages[activeChat] = [...(updatedMessages[activeChat] || []), newMessage];
+      setChatMessages(updatedMessages);
+    } else {
+      // If no active chat, do nothing or show a notification
+      alert('Please select a chat first');
+      return;
+    }
 
     // Clear input
     setMessage('');
+    // Close emoji picker if open
+    setShowEmojiPicker(false);
   };
 
   const formatTime = (date: Date) => {
@@ -532,14 +602,14 @@ export default function ChatPage() {
       {/* Contacts sidebar */}
       {(showSidebar || !activeChat) && (
         <div className={`${isMobileView ? 'w-full absolute inset-0 h-full' : 'w-2/5 relative'} border-r border-gray-200 bg-white z-20`}>
-          {/* Chat header */}
-          <div className="chat-header p-4 flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Chats</h2>
+          {/* Chat header - now styled to match the app's top bar */}
+          <div className="bg-white p-4 flex justify-between items-center border-b border-gray-200 shadow-sm">
+            <h2 className="text-xl font-semibold text-teal-900">Messages</h2>
             <div className="flex space-x-2">
-              <button className="text-white p-1">
+              <button className="text-gray-600 p-1 hover:bg-gray-100 rounded-full">
                 <Search size={20} />
               </button>
-              <button className="text-white p-1">
+              <button className="text-gray-600 p-1 hover:bg-gray-100 rounded-full">
                 <MoreVertical size={20} />
               </button>
             </div>
@@ -713,43 +783,48 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col relative chat-container">
           {activeChat ? (
             <>
-              {/* Chat header */}
-              <div className="chat-header flex items-center justify-between p-3">
+              {/* Chat header - now styled to match the app's top bar */}
+              <div className="bg-white border-b border-gray-200 shadow-sm flex items-center justify-between p-4 sticky top-0 z-10">
                 <div className="flex items-center">
                   {isMobileView && (
                     <button
-                      className="mr-2 text-white"
+                      className="mr-3 text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors"
                       onClick={() => setShowSidebar(true)}
                     >
-                      <ChevronLeft size={24} />
+                      <ChevronLeft size={20} />
                     </button>
                   )}
-                  <img
-                    src={contacts.find(c => c.id === activeChat)?.image || '/logo.png'}
-                    alt={contacts.find(c => c.id === activeChat)?.name}
-                    className="w-10 h-10 rounded-full object-cover mr-3"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = '/logo.png';
-                    }}
-                  />
-                  <div>
-                    <h3 className="font-semibold text-white">{contacts.find(c => c.id === activeChat)?.name}</h3>
-                    <p className="text-xs text-white opacity-80">
+                  <div className="relative">
+                    <img
+                      src={contacts.find(c => c.id === activeChat)?.image || '/logo.png'}
+                      alt={contacts.find(c => c.id === activeChat)?.name}
+                      className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = '/logo.png';
+                      }}
+                    />
+                    {contacts.find(c => c.id === activeChat)?.online && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="font-semibold text-gray-900">{contacts.find(c => c.id === activeChat)?.name}</h3>
+                    <p className="text-xs text-gray-500">
                       {contacts.find(c => c.id === activeChat)?.online ? 'Online' : 'Last seen today at ' + formatTime(new Date())}
                     </p>
                   </div>
                 </div>
-                <div className="flex space-x-3">
-                  <button className="text-white">
-                    <Phone size={20} />
+                <div className="flex space-x-1">
+                  <button className="text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Phone size={18} />
                   </button>
-                  <button className="text-white">
-                    <Video size={20} />
+                  <button className="text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Video size={18} />
                   </button>
-                  <button className="text-white">
-                    <MoreVertical size={20} />
+                  <button className="text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <MoreVertical size={18} />
                   </button>
                 </div>
               </div>
@@ -783,7 +858,48 @@ export default function ChatPage() {
                               </div>
                             )}
                             <div className={`chat-bubble ${isCurrentUser ? 'sent' : 'received'} ${isSelected ? 'ring-2 ring-teal-500' : ''}`}>
-                              <p>{msg.text}</p>
+                              {msg.text && <p className="mb-2">{msg.text}</p>}
+
+                              {/* Render attachments */}
+                              {msg.attachments && msg.attachments.length > 0 && (
+                                <div className="mb-2">
+                                  {msg.attachments.map((attachment, idx) => (
+                                    <div key={idx} className="mb-2">
+                                      {attachment.type === 'image' && (
+                                        <div className="relative rounded-lg overflow-hidden">
+                                          <img
+                                            src={attachment.url}
+                                            alt={attachment.name || 'Image'}
+                                            className="w-full h-auto rounded-lg max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                            onClick={() => alert('This would open the image in full screen')}
+                                          />
+                                        </div>
+                                      )}
+
+                                      {attachment.type === 'product' && (
+                                        <div className="bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                                          <div className="flex items-center">
+                                            <div className="w-12 h-12 rounded-md overflow-hidden mr-2">
+                                              <img
+                                                src={attachment.preview || '/logo.png'}
+                                                alt={attachment.name || 'Product'}
+                                                className="w-full h-full object-cover"
+                                              />
+                                            </div>
+                                            <div className="flex-1">
+                                              <p className="font-medium text-sm">{attachment.name}</p>
+                                              <button className="text-xs text-teal-600 flex items-center mt-1">
+                                                <ShoppingBag size={12} className="mr-1" /> View in Shop
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
                               <div className="flex justify-end items-center mt-1">
                                 <span className="text-xs opacity-70">
                                   {formatTime(msg.timestamp)}
@@ -815,13 +931,92 @@ export default function ChatPage() {
 
               {/* WhatsApp-like message input */}
               <div className="input-container">
-                <div className="flex items-center">
-                  <button className="text-gray-500 p-2 rounded-full hover:bg-gray-100">
-                    <Smile size={24} />
-                  </button>
-                  <button className="text-gray-500 p-2 rounded-full hover:bg-gray-100">
-                    <Paperclip size={24} />
-                  </button>
+                <div className="flex items-center relative">
+                  {/* Emoji picker button */}
+                  <div className="relative">
+                    <button
+                      className={`text-gray-500 p-2 rounded-full ${showEmojiPicker ? 'bg-gray-100 text-teal-500' : 'hover:bg-gray-100'}`}
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      <Smile size={24} />
+                    </button>
+
+                    {/* Emoji picker dropdown */}
+                    {showEmojiPicker && (
+                      <div
+                        className="absolute bottom-12 left-0 z-50"
+                        ref={emojiPickerRef}
+                      >
+                        <div className="bg-white rounded-lg shadow-xl border border-gray-200">
+                          {/* This would be the actual EmojiPicker component in a real implementation */}
+                          <div className="p-3 w-64 h-48 overflow-y-auto">
+                            <div className="flex flex-wrap gap-2">
+                              {['😀', '😂', '😍', '🥰', '😊', '😎', '🙌', '👍', '❤️', '🔥', '🎉', '🤔', '😢', '😭', '🥺', '😡'].map(emoji => (
+                                <button
+                                  key={emoji}
+                                  className="text-2xl hover:bg-gray-100 p-1 rounded"
+                                  onClick={() => handleEmojiClick({ emoji })}
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Attachment button */}
+                  <div className="relative">
+                    <button
+                      className={`text-gray-500 p-2 rounded-full ${showAttachmentOptions ? 'bg-gray-100 text-teal-500' : 'hover:bg-gray-100'}`}
+                      onClick={() => setShowAttachmentOptions(!showAttachmentOptions)}
+                    >
+                      <Paperclip size={24} />
+                    </button>
+
+                    {/* Attachment options dropdown */}
+                    {showAttachmentOptions && (
+                      <div
+                        className="absolute bottom-12 left-0 z-50"
+                        ref={attachmentOptionsRef}
+                      >
+                        <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-48">
+                          <button
+                            className="flex items-center w-full p-2 hover:bg-gray-100 rounded text-left"
+                            onClick={() => handleAttachmentSelect('image')}
+                          >
+                            <Image size={20} className="mr-2 text-teal-500" />
+                            <span>Photo</span>
+                          </button>
+                          <button
+                            className="flex items-center w-full p-2 hover:bg-gray-100 rounded text-left"
+                            onClick={() => handleAttachmentSelect('video')}
+                          >
+                            <Video size={20} className="mr-2 text-teal-500" />
+                            <span>Video</span>
+                          </button>
+                          <button
+                            className="flex items-center w-full p-2 hover:bg-gray-100 rounded text-left"
+                            onClick={() => handleAttachmentSelect('file')}
+                          >
+                            <Paperclip size={20} className="mr-2 text-teal-500" />
+                            <span>Document</span>
+                          </button>
+                          <button
+                            className="flex items-center w-full p-2 hover:bg-gray-100 rounded text-left"
+                            onClick={() => handleAttachmentSelect('audio')}
+                          >
+                            <Mic size={20} className="mr-2 text-teal-500" />
+                            <span>Audio</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Message input */}
                   <input
                     type="text"
                     placeholder="Type a message"
@@ -829,11 +1024,14 @@ export default function ChatPage() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
                         handleSendMessage();
                       }
                     }}
                   />
+
+                  {/* Send or mic button */}
                   {message.trim() ? (
                     <button
                       className="bg-teal-600 text-white rounded-full p-2 hover:bg-teal-700 transition-colors shadow-md"

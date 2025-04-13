@@ -13,6 +13,9 @@ export default function ForgotPassword({ onCancel, onSuccess }: ForgotPasswordPr
   const [loading, setLoading] = useState(false);
   const { resetPassword } = useAuth();
 
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -21,10 +24,21 @@ export default function ForgotPassword({ onCancel, onSuccess }: ForgotPasswordPr
       setMessage('');
       setLoading(true);
       await resetPassword(email);
-      setMessage('Check your email for password reset instructions.');
-      setTimeout(() => {
-        onSuccess();
-      }, 3000);
+      setMessage('Password reset link sent! Check your email for instructions.');
+      setResetSuccess(true);
+
+      // Start countdown for auto-redirect
+      let secondsLeft = 5;
+      const countdownInterval = setInterval(() => {
+        secondsLeft -= 1;
+        setCountdown(secondsLeft);
+
+        if (secondsLeft <= 0) {
+          clearInterval(countdownInterval);
+          onSuccess();
+        }
+      }, 1000);
+
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
